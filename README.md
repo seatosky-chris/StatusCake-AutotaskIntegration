@@ -1,0 +1,4 @@
+
+# StatusCake - Autotask Integration
+
+This script can be used to watch for StatusCake alerts and handle ticket creation and auto-closing in Autotask. The script is designed to be ran in an Azure function. You then grab the URL of the Azure function and plug that into the Webhook field of a Contact Group in StatusCake. Next, assign this contract group to any status monitors that you want the integration to manage. When an alert comes up, the script will create a new ticket in Autotask via the API. If the alert gets closed (because the device is back up), it will auto-close the ticket and add notes on downtime. If the ticket is assign to a technician it will place it in Plan Complete, if unassigned, it will full Complete it. If the script cannot connect to the Autotask API, it will fallback to sending an email to an address of your choice.

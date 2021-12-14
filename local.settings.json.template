@@ -1,0 +1,24 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+
+    "AUTOTASK_INTEGRATION_CODE": "",
+    "AUTOTASK_USER": "",
+    "AUTOTASK_SECRET": "",
+
+    "DB_ENDPOINT": "",
+    "DB_KEY": "",
+    "DB_DATABASE": "",
+
+    "STATUSCAKE_API_KEY": "",
+
+    "EMAIL_API_ENDPOINT": "",
+    "EMAIL_API_KEY": "",
+    "EMAIL_FROM__Email": "",
+    "EMAIL_FROM__Name": "",
+    "EMAIL_TO__Email": "",
+    "EMAIL_TO__Name": ""
+  }
+}
