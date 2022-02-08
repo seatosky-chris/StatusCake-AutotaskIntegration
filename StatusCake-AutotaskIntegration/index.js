@@ -29,7 +29,7 @@ module.exports = async function (context, req) {
         : "This HTTP triggered function executed successfully.";
 
     if (method != "Website") {
-        context.log("Method is not a website uptime. Exiting...");
+        context.log.warn("Method is not a website uptime. Exiting...");
         context.res = {
             status: 400,
             body: "Method is not a website uptime. Exiting..."
@@ -293,7 +293,7 @@ module.exports = async function (context, req) {
             });
             uptimeTestDetails = await scReponse.json();
         } catch (error) {
-            context.log(error);
+            context.log.error(error);
         }
 
         let uptimeAlerts;
@@ -305,7 +305,7 @@ module.exports = async function (context, req) {
             });
             uptimeAlerts = await scReponse.json();
         } catch (error) {
-            context.log(error);
+            context.log.error(error);
         }
         
         var detailedNotes = "";
@@ -393,10 +393,10 @@ module.exports = async function (context, req) {
                     method: "POST",
                     body: JSON.stringify(mailBody)
                 });
-                context.log("Ticket creation failed. Backup email sent to support.");
+                context.log.warn("Ticket creation failed. Backup email sent to support.");
             } catch (error) {
-                context.log("Ticket creation failed. Sending an email as a backup also failed.");
-                context.log(error);
+                context.log.error("Ticket creation failed. Sending an email as a backup also failed.");
+                context.log.error(error);
             }
             ticketID = null;
         }
@@ -489,12 +489,12 @@ module.exports = async function (context, req) {
             context.log("Ticket closed!");
             context.log(dbTickets);
         } else {
-            context.log("No ticket found to close.");
+            context.log.warn("No ticket found to close.");
         }
 
     } else {
         // No ticket found
-        context.log("No status.");
+        context.log.warn("No status.");
     }
 
     context.res = {
