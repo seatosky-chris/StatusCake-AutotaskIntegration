@@ -19,6 +19,11 @@
     "EMAIL_FROM__Email": "",
     "EMAIL_FROM__Name": "",
     "EMAIL_TO__Email": "",
-    "EMAIL_TO__Name": ""
+    "EMAIL_TO__Name": "",
+
+    "TICKET_QueueID" : "",
+    "TICKET_IssueType": "",
+    "TICKET_SubIssueType": "",
+    "TICKET_ServiceLevelAgreementID": ""
   }
 }
