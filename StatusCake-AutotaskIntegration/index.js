@@ -55,6 +55,37 @@ module.exports = async function (context, req) {
     const database = dbClient.database(process.env.DB_DATABASE);
     const ticketReferenceContainer = database.container("TicketReference");
 
+    // Verify the Autotask API key works (the library doesn't always provide a nice error message)
+    var useAutotaskAPI = true;
+    try {
+        let fetchParms = {
+            method: 'GET',
+            headers: {
+              "Content-Type": "application/json",
+              "User-Agent": "Apigrate/1.0 autotask-restapi NodeJS connector"
+            }
+        };
+        fetchParms.headers.ApiIntegrationcode = process.env.AUTOTASK_INTEGRATION_CODE;
+        fetchParms.headers.UserName =  process.env.AUTOTASK_USER;
+        fetchParms.headers.Secret = process.env.AUTOTASK_SECRET;
+
+        let test_url = `${autotask.zoneInfo ? autotask.zoneInfo.url : autotask.base_url}V${autotask.version}/Companies/entityInformation`;
+        let response = await fetch(`${test_url}`, fetchParms);
+        if(!response.ok){
+            var result = await response.text();
+            if (!result) {
+                result = `${response.status} - ${response.statusText}`;
+            }
+            throw result;
+        }
+    } catch (error) {
+        if (error.startsWith("401")) {
+            error = `API Key Unauthorized. (${error})`
+        }
+        context.log.error(error);
+        useAutotaskAPI = false;
+    }
+
 
     if (status == "Down") {
         // If this alert is an uptime test going Down:
@@ -65,94 +96,97 @@ module.exports = async function (context, req) {
         
         // Find company
         let autotaskCompanies;
-        var companyIDTags = tags.filter(tag => tag.includes('CompanyID:'));
-        if (companyIDTags && companyIDTags.length > 0) {
-            var companyID = companyIDTags[0].replace("CompanyID:", "").trim();
-            autotaskCompanies = await api.Companies.query({
-                filter: [
-                    {
-                        "op": "eq",
-                        "field": "id",
-                        "value": companyID
-                    }
-                ],
-                includeFields: [
-                    "id", "companyName", "companyNumber", "isActive"
-                ]
-            });
-        }
 
-        var companyTags = tags.filter(tag => tag.includes('Company:'));
-        if (companyTags && companyTags.length > 0) {
-            var companyName = companyTags[0].replace("Company:", "");
-        } else {
-            var companyName;
-            if (name.indexOf('-') == -1) {
-                if (name.indexOf(' ') == -1) {
-                    companyName = name;
-                } else {
-                    companyName = name.substring(0, name.indexOf(' '));
-                }
-            } else {
-                companyName = name.substring(0, name.indexOf('-'));
-            }
-        }
-        companyName = companyName.trim();
-
-        if (companyName && (!autotaskCompanies || autotaskCompanies.items.length == 0)) {
-            autotaskCompanies = await api.Companies.query({
-                filter: [
-                    {
-                        "op": "or",
-                        "items": [
-                            {
-                                "op": "eq",
-                                "field": "CompanyNumber",
-                                "value": companyName
-                            },
-                            {
-                                "op": "eq",
-                                "field": "Client Abbreviation",
-                                "value": companyName,
-                                "udf": true
-                            }
-                        ]
-                    }
-                ],
-                includeFields: [
-                    "id", "companyName", "companyNumber", "isActive"
-                ]
-            }); 
-
-            if (!autotaskCompanies || autotaskCompanies.items.length < 1) {
+        if (useAutotaskAPI) {
+            var companyIDTags = tags.filter(tag => tag.includes('CompanyID:'));
+            if (companyIDTags && companyIDTags.length > 0) {
+                var companyID = companyIDTags[0].replace("CompanyID:", "").trim();
                 autotaskCompanies = await api.Companies.query({
                     filter: [
                         {
-                            "op": "contains",
-                            "field": "CompanyName",
-                            "value": companyName
+                            "op": "eq",
+                            "field": "id",
+                            "value": companyID
+                        }
+                    ],
+                    includeFields: [
+                        "id", "companyName", "companyNumber", "isActive"
+                    ]
+                });
+            }
+
+            var companyTags = tags.filter(tag => tag.includes('Company:'));
+            if (companyTags && companyTags.length > 0) {
+                var companyName = companyTags[0].replace("Company:", "");
+            } else {
+                var companyName;
+                if (name.indexOf('-') == -1) {
+                    if (name.indexOf(' ') == -1) {
+                        companyName = name;
+                    } else {
+                        companyName = name.substring(0, name.indexOf(' '));
+                    }
+                } else {
+                    companyName = name.substring(0, name.indexOf('-'));
+                }
+            }
+            companyName = companyName.trim();
+
+            if (companyName && (!autotaskCompanies || autotaskCompanies.items.length == 0)) {
+                autotaskCompanies = await api.Companies.query({
+                    filter: [
+                        {
+                            "op": "or",
+                            "items": [
+                                {
+                                    "op": "eq",
+                                    "field": "CompanyNumber",
+                                    "value": companyName
+                                },
+                                {
+                                    "op": "eq",
+                                    "field": "Client Abbreviation",
+                                    "value": companyName,
+                                    "udf": true
+                                }
+                            ]
                         }
                     ],
                     includeFields: [
                         "id", "companyName", "companyNumber", "isActive"
                     ]
                 }); 
+
+                if (!autotaskCompanies || autotaskCompanies.items.length < 1) {
+                    autotaskCompanies = await api.Companies.query({
+                        filter: [
+                            {
+                                "op": "contains",
+                                "field": "CompanyName",
+                                "value": companyName
+                            }
+                        ],
+                        includeFields: [
+                            "id", "companyName", "companyNumber", "isActive"
+                        ]
+                    }); 
+                }
             }
-        }
 
-        // Filter down if multiple companies found and remove any inactive
-        if (autotaskCompanies && autotaskCompanies.items.length > 0) {
+            // Filter down if multiple companies found and remove any inactive
+            if (autotaskCompanies && autotaskCompanies.items.length > 0) {
 
-            autotaskCompanies = autotaskCompanies.items.filter(company => {
-                return company.isActive == true;
-            });
-
-            if (autotaskCompanies.length > 1) {
-                autotaskCompanies = autotaskCompanies.filter(company => {
-                    return (name.toLowerCase()).search(company.companyName.toLowerCase()) > -1;
+                autotaskCompanies = autotaskCompanies.items.filter(company => {
+                    return company.isActive == true;
                 });
+
                 if (autotaskCompanies.length > 1) {
-                    autotaskCompanies = [];
+                    autotaskCompanies = autotaskCompanies.filter(company => {
+                        return (name.toLowerCase()).search(company.companyName.toLowerCase()) > -1;
+                    });
+                    if (autotaskCompanies.length > 1) {
+                        autotaskCompanies = [];
+                    }
                 }
             }
         }
@@ -172,7 +206,7 @@ module.exports = async function (context, req) {
         // Get primary location and default contract
         var contractID = null;
         var location = null;
-        if (autotaskCompanies && autotaskCompanies.length == 1) {
+        if (useAutotaskAPI && autotaskCompanies && autotaskCompanies.length == 1) {
             let locations = await api.CompanyLocations.query({
                 filter: [
                     {
@@ -220,13 +254,15 @@ module.exports = async function (context, req) {
                 includeFields: [ "id" ]
             });
             
-            contractID = contract.items[0].id
+            if (contract.items && contract.items.length > 0) {
+                contractID = contract.items[0].id
+            }
         }
 
         // Get device
         var configurationItemID = null;
-        var deviceTags = tags.filter(tag => tag.includes('Device:'));
-        if (deviceTags && deviceTags.length > 0) {
+        if (useAutotaskAPI && deviceTags && deviceTags.length > 0) {
+            var deviceTags = tags.filter(tag => tag.includes('Device:'));
             var deviceName = deviceTags[0].replace("Device:", "").trim();
             let autotaskDevices = await api.ConfigurationItems.query({
                 filter: [
@@ -428,7 +464,7 @@ module.exports = async function (context, req) {
             })
             .fetchAll();
 
-        if (dbTickets && dbTickets.resources && dbTickets.resources.length > 0) {
+        if (useAutotaskAPI && dbTickets && dbTickets.resources && dbTickets.resources.length > 0) {
             for (var dbTicket of dbTickets.resources) {
                 let downTickets = await api.Tickets.query({
                     filter: [
