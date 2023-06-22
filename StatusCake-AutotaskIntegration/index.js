@@ -77,6 +77,8 @@ module.exports = async function (context, req) {
                 result = `${response.status} - ${response.statusText}`;
             }
             throw result;
+        } else {
+            context.log(`Successfully connected to Autotask. (${response.status} - ${response.statusText})`)
         }
     } catch (error) {
         if (error.startsWith("401")) {
