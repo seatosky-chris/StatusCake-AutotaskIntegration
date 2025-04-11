@@ -2,15 +2,15 @@
   "name": "statuscake-autotaskintegration",
   "version": "1.0.0",
   "description": "",
+  "main": "StatusCake-AutotaskIntegration/index.js",
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@apigrate/autotask-restapi": "^0.6.0",
-    "@azure/cosmos": "^3.17.1",
-    "node-fetch-commonjs": "^3.1.1",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {}
+    "@apigrate/autotask-restapi": "^2.0.1",
+    "@azure/cosmos": "^4.3.0",
+    "@azure/functions": "^4.7.0",
+    "uuid": "^11.1.0"
+  }
 }
