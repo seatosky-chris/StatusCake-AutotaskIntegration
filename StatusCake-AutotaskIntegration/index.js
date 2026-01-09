@@ -4,11 +4,13 @@ const CosmosClient = require("@azure/cosmos").CosmosClient;
 const { v4: uuidv4 } = require('uuid');
 
 app.http('StatusCake-AutotaskIntegration', {
-    methods: ['GET', 'POST'],
+    methods: ['POST'],
     authLevel: 'function',
     handler: async (req, context) => {
-        const params = new URLSearchParams(req.query);
         context.log('JavaScript HTTP trigger function processed a request.');
+
+        const bodyText = await req.text();
+        const params = new URLSearchParams(bodyText);
 
         const name = (params && params.get('Name'));
         const method = (params && params.get('Method'));

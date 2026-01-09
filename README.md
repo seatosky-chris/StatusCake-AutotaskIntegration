@@ -9,5 +9,5 @@ This script can be used to watch for StatusCake alerts and handle ticket creatio
 - Create a StatusCake API key and fill in the STATUSCAKE_API_KEY value in local.settings.json.
 - Configure the Email forwarder details in local.settings.json. (See my Email Forwarder script.) This could also be configured to use something like SendGrid instead but the script may require minor modifications.
 - Push this to an Azure Function and ensure the environment variables get updated.
-- Get the URL of the Azure Function and create a new contact group in StatusCake, paste the function's URL in the Webhook field.
+- Get the URL of the Azure Function and create a new contact group in StatusCake, paste the function's URL in the Webhook field. Set it to send the data in a POST request.
 - Assign this contact group to any status monitors you want the integration to manage.
