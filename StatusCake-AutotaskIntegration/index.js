@@ -208,8 +208,7 @@ app.http('StatusCake-AutotaskIntegration', {
                 ];
             }
 
-            // Get primary location and default contract
-            var contractID = null;
+            // Get primary location
             var location = null;
             if (useAutotaskAPI && autotaskCompanies && autotaskCompanies.length == 1) {
                 let locations = await autotask.CompanyLocations.query({
@@ -236,31 +235,6 @@ app.http('StatusCake-AutotaskIntegration', {
                     }
                 } else {
                     location = locations[0];
-                }
-
-                let contract = await autotask.Contracts.query({
-                    filter: [
-                        {
-                            "op": "and",
-                            "items": [
-                                {
-                                    "op": "eq",
-                                    "field": "CompanyID",
-                                    "value": autotaskCompanies[0].id
-                                },
-                                {
-                                    "op": "eq",
-                                    "field": "IsDefaultContract",
-                                    "value": true
-                                }
-                            ]
-                        }
-                    ],
-                    includeFields: [ "id" ]
-                });
-                
-                if (contract.items && contract.items.length > 0) {
-                    contractID = contract.items[0].id
                 }
             }
 
@@ -392,7 +366,6 @@ app.http('StatusCake-AutotaskIntegration', {
                 IssueType: parseInt(process.env.TICKET_IssueType),
                 SubIssueType: parseInt(process.env.TICKET_SubIssueType),
                 ServiceLevelAgreementID: parseInt(process.env.TICKET_ServiceLevelAgreementID),
-                ContractID: (contractID ? contractID : null),
                 ConfigurationItemID: configurationItemID,
                 Title: title,
                 Description: description
