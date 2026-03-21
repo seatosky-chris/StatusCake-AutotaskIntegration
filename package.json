@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "@apigrate/autotask-restapi": "^2.0.1",
-    "@azure/cosmos": "^4.3.0",
-    "@azure/functions": "^4.7.0",
-    "uuid": "^11.1.0"
+    "@azure/cosmos": "^4.9.2",
+    "@azure/functions": "^4.11.2"
   }
 }
