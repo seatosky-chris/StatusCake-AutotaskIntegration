@@ -1,7 +1,7 @@
 const { app } = require('@azure/functions');
 const {AutotaskRestApi} = require('@apigrate/autotask-restapi');
 const CosmosClient = require("@azure/cosmos").CosmosClient;
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 app.http('StatusCake-AutotaskIntegration', {
     methods: ['POST'],
@@ -418,7 +418,7 @@ app.http('StatusCake-AutotaskIntegration', {
             // Store reference info in the DB
             if (ticketID) {
                 let dbTicket = {
-                    id: uuidv4(),
+                    id: randomUUID(),
                     testid: testID,
                     testName: name,
                     url: url,
