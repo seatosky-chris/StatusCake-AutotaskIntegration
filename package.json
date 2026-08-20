@@ -1,8 +1,8 @@
 {
-  "name": "statuscake-autotaskintegration",
+  "name": "statuscake_autotaskintegration",
   "version": "1.0.0",
   "description": "",
-  "main": "StatusCake-AutotaskIntegration/index.js",
+  "main": "StatusCake_AutotaskIntegration/index.js",
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests yet...\""

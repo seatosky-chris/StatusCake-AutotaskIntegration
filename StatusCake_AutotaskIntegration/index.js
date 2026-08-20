@@ -3,7 +3,7 @@ const {AutotaskRestApi} = require('@apigrate/autotask-restapi');
 const CosmosClient = require("@azure/cosmos").CosmosClient;
 const { randomUUID } = require('crypto');
 
-app.http('StatusCake-AutotaskIntegration', {
+app.http('StatusCake_AutotaskIntegration', {
     methods: ['POST'],
     authLevel: 'function',
     handler: async (req, context) => {
